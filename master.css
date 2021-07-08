@@ -1,0 +1,77 @@
+#intro {
+  border-style: double;
+  padding: 12px;
+  border-width: thick;
+  margin: 4px 8px;
+}
+
+.hide {
+  display: none;
+}
+
+.cell {
+  background-color: #66ff66;
+  height: 26px;
+  width: 26px;
+  border-style: solid;
+  border-color: #000;
+  position: relative;
+  border-width: 3px;
+}
+
+.black {
+  background-color: black;
+}
+
+.white {
+  background-color: white;
+}
+
+.token {
+  height: 20px;
+  width: 20px;
+  border-radius: 10px;
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  border-style: solid;
+  border-color: black;
+  border-width: 1px;
+  box-sizing: border-box;
+}
+
+.highlight {
+  background-color: #ff3333;
+}
+
+.board-design {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  width: 256px;
+  margin: 24px auto;
+}
+
+.stat-design {
+  display: flex;
+  justify-content: space-around;
+  align-content: baseline;
+}
+
+.green {
+  background-color: green;
+}
+
+#white-indicate, #black-indicate {
+  flex-basis: 30%;
+  text-align: center;
+}
+
+#display-score {
+  flex-basis: 30%;
+  text-align: center;
+}
+
+#nav {
+  padding: 12px;
+}

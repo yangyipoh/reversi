@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Crappy Reversi</title>
+    <link rel="stylesheet" href="master.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+  </head>
+  <body>
+    <!-- Always shows a header, even in smaller screens. -->
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+      <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+          <!-- Title -->
+          <span class="mdl-layout-title">Crappy Reversi</span>
+          <!-- Add spacer, to align navigation to the right -->
+          <div class="mdl-layout-spacer"></div>
+          <!-- Navigation. We hide it in small screens. -->
+          <nav class="mdl-navigation mdl-layout--large-screen-only">
+            <a class="mdl-navigation__link" target="_blank" href="https://www.google.com/">About Me</a>
+          </nav>
+        </div>
+      </header>
+      <div class="mdl-layout__drawer">
+        <span class="mdl-layout-title">References</span>
+        <nav class="mdl-navigation">
+          <a class="mdl-navigation__link" target="_blank" href="https://getmdl.io/index.html">Material Design Lite (layout)</a>
+        </nav>
+      </div>
+      <main class="mdl-layout__content">
+        <div class="page-content">
+          <section id="intro">
+            <h1>Welcome</h1>
+            <p>This would be my second game ever made using javascript and HTML</p>
+            <p>The single player AI just looks for the move that get's the most score so it's pretty easy to beat it. I'm not an expert on AI or neural network at all. I just made this for fun so please forgive the simple game. :)</p>
+            <p>Also judging by the amount of code that is badly written I'm pretty sure there's going to be a ton of bugs.</p>
+            <p>Please select the game mode</p>
+            <!-- Colored raised button -->
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="start_singleplayer()">Singleplayer</button>
+            <!-- Colored raised button -->
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="start_2player()">2-player</button>
+            <br><br>
+            <a href="http://www.flyordie.com/games/help/reversi/en/contents.html" target="_blank">
+              <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">How to play</button>
+            </a>
+          </section>
+          <section id="board" class="hide">
+          </section>
+          <section id="stat" class="hide">
+            <div id="white-indicate">
+              <h1>White's turn</h1>
+            </div>
+            <div id="display-score">
+              <h2>3 VS 5</h2>
+            </div>
+            <div id="black-indicate">
+              <h1>Black's turn</h1>
+            </div>
+          </section>
+          <section id="nav" class="hide">
+            <!-- Colored raised button -->
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="reset()">Back</button>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <script type="text/javascript" src="main.js"></script>
+  </body>
+</html>
