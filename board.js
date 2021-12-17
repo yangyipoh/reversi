@@ -1,10 +1,24 @@
 COMPUTER_TURN = 2;
-DISABLE_INPUT = false;
 
 class Board {
-    constructor(current_turn=1, current_mode=1) {
+    constructor(current_turn=1, current_mode=1, input=false) {
         this.turn = current_turn;
         this.mode = current_mode;
+        this.board = this.new_board();
+        this.score = [2, 2];
+        this.disable_input = input;
+    }
+
+    init_singleplayer() {
+        this.mode = 1;
+        this.turn = 1;
+        this.board = this.new_board()
+        this.score = [2, 2];
+    }
+
+    init_2player() {
+        this.mode = 2;
+        this.turn = 1;
         this.board = this.new_board();
         this.score = [2, 2];
     }
@@ -39,7 +53,7 @@ class Board {
 
     Returns a tuple (number of white token, number of black token)
     */
-    score() {
+    calc_score() {
         let white_score = 0;
         let black_score = 0;
 
@@ -76,7 +90,7 @@ class Board {
 
         // calculate the next square in the given direction
         let next_row = row + dir_hori;
-        let next_col = row + dir_vert;
+        let next_col = col + dir_vert;
 
         // check if next square is on edge of board
         if (next_row < 0 || next_row > 7 || next_col < 0 || next_col > 7) {
@@ -128,7 +142,7 @@ class Board {
                 for (let dir_hori = -1; dir_hori < 2; dir_hori++) {
                     for (let dir_vert = -1; dir_vert < 2; dir_vert++) {
                         // If the move is valid and it's empty
-                        if (this.board[i][j] == 0 && enclosing(player, i, j, dir_hori, dir_vert)) {
+                        if (this.board[i][j] == 0 && this.enclosing(player, i, j, dir_hori, dir_vert)) {
                             res.push([i,j]);
                             found = true
                             break;
@@ -160,7 +174,7 @@ class Board {
         // check if coords is in possible_moves
         for (let i = 0; i < possible_moves.length; i++) {
             if (JSON.stringify(coord) == JSON.stringify(possible_moves[i])) {
-                current_board[row][col] = player;   // place the token
+                this.board[row][col] = player;   // place the token
                 found = true;
                 break;
             }
@@ -172,13 +186,13 @@ class Board {
             for (let i = -1; i < 2; i++) {
                 for (let j = -1; j < 2; j++) {
                     // If we can capture
-                    if (enclosing(player, row, col, i, j)) {
+                    if (this.enclosing(player, row, col, i, j)) {
                         let current_row = row + i;
                         let current_col = col + j;
                         
                         // keep capturing in the direction until we encounter our own piece
-                        while (current_board[current_row][current_col] != player) {
-                            current_board[current_row][current_col] = player;
+                        while (this.board[current_row][current_col] != player) {
+                            this.board[current_row][current_col] = player;
                             current_row += i;
                             current_col += j;
                         }
@@ -187,22 +201,22 @@ class Board {
             }
         
             // Sort out who's next move is it
-            if (player == 1 && valid_moves(2).length != 0) {
+            if (player == 1 && this.valid_moves(2).length != 0) {
                 return 2;
             }
-            else if (player == 1 && valid_moves(2).length == 0 && valid_moves(1).length != 0) {
+            else if (player == 1 && thils.valid_moves(2).length == 0 && this.valid_moves(1).length != 0) {
                 return 1;
             }
-            else if (player == 1 && valid_moves(2).length == 0 && valid_moves(1).length == 0) {
+            else if (player == 1 && this.valid_moves(2).length == 0 && this.valid_moves(1).length == 0) {
                 return 0;
             }
-            else if (player == 2 && valid_moves(1).length != 0) {
+            else if (player == 2 && this.valid_moves(1).length != 0) {
                 return 1;
             }
-            else if (player == 2 && valid_moves(1).length == 0 && valid_moves(2).length != 0) {
+            else if (player == 2 && this.valid_moves(1).length == 0 && this.valid_moves(2).length != 0) {
                 return 2;
             }
-            else if (player == 2 && valid_moves(2).length == 0 && valid_moves(1).length == 0) {
+            else if (player == 2 && this.valid_moves(2).length == 0 && this.valid_moves(1).length == 0) {
                 return 0;
             }
             else {
@@ -213,6 +227,62 @@ class Board {
         else {
             return -1;
         }
+    }
+
+    /*
+    function cell_select(r, c)
+
+    Callback function when we click to place on the board
+
+    input: r --> the row that the user have clicked
+    input: c --> the column that the user have clicked
+    */
+    process_onclick(r, c) {
+        // don't do anything if input is disabled
+        if (this.disable_input) {
+            return;
+        }
+
+        // call next_state
+        let exit_code = this.next_state(this.turn, r, c);
+
+        // exit_code == -1 --> user did not select a valid square
+        if (exit_code == -1) {
+            alert("Please select a VALID square (marked red)");
+        }
+
+        // // exit_code == 0 --> the game has ended 
+        // else if (exit_code == 0) {
+        //     let check = score();
+        //     current_player = 0;
+        //     print_board();
+        //     update_turn();
+        //     update_score();
+
+        //     // Send victory message
+        //     if (check[0] == check[1]) {
+        //     alert("It's a draw!");
+        //     }
+        //     else if (check[0] > check[1]) {
+        //     alert("Congratulations, White!");
+        //     }
+        //     else {
+        //     alert("Congratulations, Black!");
+        //     }
+        // }
+        // // exit_code == 1 or exit_code == 2 --> Keep playing
+        // else {
+        //     current_player = exit_code;
+        //     print_board();
+        //     update_turn();
+        //     update_score();
+
+        //     // If it's against the computer and its the computer's turn
+        //     if (current_mode == 1 && current_player == computer_play) {
+        //     disable_input = true;
+        //     t = setTimeout(computer_move, 1000);  // Put some delay for feedback
+        //     }
+        // }
     }
 
     /*
@@ -231,7 +301,121 @@ class Board {
         }
         return copy;
     }
+
+    /*
+    Function to draw onto the screen
+    */
+    draw() {
+        // draw the board
+        /*
+        Create 64 div blocks
+
+        * Includes the cell attributes in CSS
+        * Includes the id rXcY where X is Xth row and Y is the Yth column
+        * Includes cell_select(X, Y) callback on click to allow the program to know where has the user clicked
+        */
+        let output_str = "";
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                output_str += "<div class=\"cell\" id=\"r" + i + "c" + j +"\" onclick=\"cell_select(" + i + "," + j + ")\"></div>";
+            }
+        }
+        document.getElementById("board").innerHTML = output_str;
+
+        // Place a white/black token depending on current_board
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                if (this.board[i][j] == 1) {
+                    this.place_token(i, j, "w");
+                }
+                else if (this.board[i][j] == 2) {
+                    this.place_token(i, j, "b");
+                }
+            }
+        }
+
+        // Highlight all possible moves for the player to make
+        let list_of_moves = this.valid_moves(this.turn);
+        for (let i = 0; i < list_of_moves.length; i++) {
+            let query_str = "r" + list_of_moves[i][0] + "c" + list_of_moves[i][1];
+            document.getElementById(query_str).classList.add("highlight");
+        }
+
+        // Update the turn
+        if (this.turn == 1) {
+            document.getElementById("white-indicate").classList.add("green");
+            document.getElementById("black-indicate").classList.remove("green");
+        }
+        else if (this.turn == 2) {
+            document.getElementById("white-indicate").classList.remove("green");
+            document.getElementById("black-indicate").classList.add("green");
+        }
+        else {
+            document.getElementById("white-indicate").classList.remove("green");
+            document.getElementById("black-indicate").classList.remove("green");
+        }
+
+        // Update the score
+        let all_score = this.calc_score();
+        this.score = all_score;
+        output_str = "<h2>" + all_score[0] + " VS " + all_score[1] + "</h2>";
+        document.getElementById("display-score").innerHTML = output_str;
+    }
+
+    /*
+    function place_token(row, column, colour)
+
+    HTML helper function to place the token
+
+    input: row      --> row that the token is placed
+    input: column   --> column that the token is placed
+    input: colour   --> colour of the token
+    */
+    place_token(row, column, colour) {
+        let id_selector = "r" + row + "c" + column;
+        let output_str = "";
+        if (colour == "w") {
+            output_str = "<div class=\"token white\"></div>";
+        }
+        else {
+            output_str = "<div class=\"token black\"></div>";
+        }
+        document.getElementById(id_selector).innerHTML = output_str;
+    }
 }
 
+// -------------------------------- onclick events -----------------------------------------
+function cell_select(r, c) {
+    current_board.process_onclick(r, c);
+}
+
+function start_singleplayer() {
+    current_board.init_singleplayer();
+    current_board.draw();
+    transition();
+}
+
+function start_2player() {
+    current_board.init_2player();
+    current_board.draw();
+    transition();
+}
+
+// ----------------------------- helper function ---------------------------------------
+function transition() {
+    // Remove the home screen 
+  document.getElementById("intro").classList.add("hide");
+
+  // Add the CSS design for the game
+  document.getElementById("board").classList.add("board-design");
+  document.getElementById("stat").classList.add("stat-design");
+
+  // Unhide the game
+  document.getElementById("board").classList.remove("hide");
+  document.getElementById("stat").classList.remove("hide");
+  document.getElementById("nav").classList.remove("hide");
+}
+
+
 console.log('Hello from board.js')
-let test1 = new Board()
+let current_board = new Board()
