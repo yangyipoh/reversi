@@ -1,7 +1,9 @@
 class Node {
-    constructor(node_val=null) {
-        this.node_val = node_val;
+    constructor(board=null, score=null) {
+        this.board = board;
         this.child = [];
+        this.child_moves = [];
+        this.node_val = score;
     }
 
     is_terminal() {
@@ -13,12 +15,72 @@ class Node {
     }
 }
 
-function minimax(node, depth, alpha, beta, maximizingPlayer) {
-    if (depth == 0 || node.is_terminal()) {
-        return node.node_val;
+function create_tree(depth, board) {
+    // base case
+    if (depth == 0 || board.turn == 0) {
+        let new_node = create_node(board);
+        return new_node;
     }
 
-    if (maximizingPlayer) {
+    // create the parent
+    let parent_node = create_node(board);
+
+    // add the childrens
+    let all_moves = board.valid_moves(board.turn);
+    parent_node.child_moves = all_moves
+    
+    for (let i=0; i<all_moves.length; i++) {
+        let cpy_board = create_new_board(board)
+        let exit_code = cpy_board.next_state(cpy_board.turn, all_moves[i][0], all_moves[i][1]);
+        cpy_board.turn = exit_code;
+        let child_node = create_tree(depth-1, cpy_board);
+        parent_node.child.push(child_node);
+    }
+
+    return parent_node;
+}
+
+function create_node(board) {
+    let new_board = create_new_board(board)
+
+    let new_node = new Node(board=new_board);
+
+    return new_node;
+}
+
+function create_new_board(board) {
+    // make new board
+    let new_state_board = new Board();
+
+    // copy over the whole board
+    new_state_board.turn = board.turn;
+    new_state_board.mode = board.mode;
+    new_state_board.board = board.pseudocopy();
+    new_state_board.score = board.score;
+    new_state_board.disable_input = board.disable_input;
+
+    return new_state_board
+}
+
+function flip_player(player) {
+    if (player == 1) {
+        return 2
+    }
+    else if (player == 2) {
+        return 1
+    }
+}
+
+function minimax(node, depth, alpha, beta) {
+    if (depth == 0 || node.is_terminal()) {
+        // objective = maximise black pieces
+        let board = node.board;
+        let score = board.calc_score();
+        return score[1];
+    }
+    let board = node.board;
+    let maximizing_black = (board.turn == 2);
+    if (maximizing_black) {
         let value = -Infinity;
         for (let i=0; i < node.child.length; i++) {
             let child = node.child[i];
@@ -47,68 +109,3 @@ function minimax(node, depth, alpha, beta, maximizingPlayer) {
 }
 
 console.log('Testing world')
-
-// Create all the nodes
-let a_node = new Node();
-let b_node = new Node();
-let c_node = new Node();
-let d_node = new Node();
-let e_node = new Node();
-let f_node = new Node();
-let g_node = new Node();
-let h_node = new Node();
-let i_node = new Node();
-let j_node = new Node();
-let k_node = new Node();
-let l_node = new Node();
-let m_node = new Node();
-let n_node = new Node();
-let o_node = new Node();
-let p_node = new Node();
-let q_node = new Node();
-let r_node = new Node();
-let s_node = new Node();
-let t_node = new Node(5);
-let u_node = new Node(6);
-let v_node = new Node(7);
-let w_node = new Node(4);
-let x_node = new Node(5);
-let y_node = new Node(3);
-let z_node = new Node(6);
-let aa_node = new Node(6);
-let ab_node = new Node(9);
-let ac_node = new Node(7);
-let ad_node = new Node(5);
-let ae_node = new Node(9);
-let af_node = new Node(8);
-let ag_node = new Node(6);
-
-// depth = 1
-k_node.child = [t_node, u_node];
-l_node.child = [v_node, w_node, x_node];
-m_node.child = [y_node];
-n_node.child = [z_node];
-o_node.child = [aa_node, ab_node];
-p_node.child = [ac_node];
-q_node.child = [ad_node];
-r_node.child = [ae_node, af_node];
-s_node.child = [ag_node];
-
-// depth = 2
-e_node.child = [k_node, l_node];
-f_node.child = [m_node];
-g_node.child = [n_node, o_node];
-h_node.child = [p_node];
-i_node.child = [q_node];
-j_node.child = [r_node, s_node];
-
-// depth = 3
-b_node.child = [e_node, f_node];
-c_node.child = [g_node, h_node];
-d_node.child = [i_node, j_node];
-
-// depth = 4
-a_node.child = [b_node, c_node, d_node];
-
-// call minimax function
-minimax(a_node, 10, -Infinity, Infinity, true);

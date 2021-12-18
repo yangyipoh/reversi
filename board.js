@@ -1,5 +1,6 @@
 let COMPUTER_TURN = 2;
 let COMPUTER_DELAY = 500;
+let DEPTH = 6;
 let tmp_var;
 
 class Board {
@@ -41,7 +42,7 @@ class Board {
             board.push(tmp);
         }
 
-        // Place the initial tokens
+        // // Place the initial tokens
         board[3][3] = 1;
         board[4][4] = 1;
         board[3][4] = 2;
@@ -273,6 +274,7 @@ class Board {
         else {
             this.turn = exit_code;
             this.draw();
+            sleep(500);
 
             // If it's against the computer and its the computer's turn
             if (this.mode == 1 && this.turn == COMPUTER_TURN) {
@@ -282,35 +284,85 @@ class Board {
         }
     }
 
+    // /*
+    // Function that allows the computer to play (depricated)
+    // */
+    // computer_move() {
+    //     // keep moving if it's the computer's turn
+    //     while (this.turn == COMPUTER_TURN) {
+    //         let current_best_score = 0;
+
+    //         // get all the valid moves for the computer for now
+    //         let all_moves_lst = this.valid_moves(this.turn)
+    //         let best_move = all_moves_lst[0];
+
+    //         for (let i = 0; i < all_moves_lst.length; i++) {
+    //             // play the move on a copied board
+    //             let board_copy = this.pseudocopy();
+    //             let temp = this.next_state(this.turn, all_moves_lst[i][0], all_moves_lst[i][1]);
+
+    //             // calculate the score and see if it's the best move
+    //             let temp_score = this.calc_score();
+    //             if (temp_score[1] > current_best_score) {
+    //                 current_best_score = temp_score[1];
+    //                 best_move = all_moves_lst[i];
+    //             }
+
+    //             // restore the board
+    //             this.board = board_copy;
+    //         }
+
+    //         console.log(best_move)
+
+    //         // play the best move
+    //         let exit_code = this.next_state(this.turn, best_move[0], best_move[1]);
+
+    //         // exit_code == 0 --> game has ended
+    //         if (exit_code == 0) {
+    //             let check = this.calc_score();
+    //             this.score = check;
+    //             this.draw();
+
+    //             this.turn = 0;
+    //             if (check[0] == check[1]) {
+    //                 alert("It's a draw!");
+    //             }
+    //             else if (check[0] > check[1]) {
+    //                 alert("Congratulations, White!");
+    //             }
+    //             else {
+    //                 alert("Congratulations, Black!");
+    //             }
+    //             break;
+    //         }
+    //         // exit_code == 1 or 2 --> keep playing
+    //         else {
+    //             this.turn = exit_code;
+    //             this.draw();
+    //         }
+    //     }
+
+    //     // restore the input for the user
+    //     this.disable_input = false;
+    // }
+
     /*
-    Function that allows the computer to play
+    Function that allows the computer to play using minimax + alpha beta pruning
     */
     computer_move() {
         // keep moving if it's the computer's turn
         while (this.turn == COMPUTER_TURN) {
-            let current_best_score = 0;
-
-            // get all the valid moves for the computer for now
-            let all_moves_lst = this.valid_moves(this.turn)
-            let best_move = all_moves_lst[0];
-
-            for (let i = 0; i < all_moves_lst.length; i++) {
-                // play the move on a copied board
-                let board_copy = this.pseudocopy();
-                let temp = this.next_state(this.turn, all_moves_lst[i][0], all_moves_lst[i][1]);
-
-                // calculate the score and see if it's the best move
-                let temp_score = this.calc_score();
-                if (temp_score[1] > current_best_score) {
-                    current_best_score = temp_score[1];
-                    best_move = all_moves_lst[i];
+            let best_move;
+            let decision_tree = create_tree(DEPTH, this);
+            let max_val = minimax(decision_tree, DEPTH, -Infinity, Infinity);
+            
+            for (let i=0; i<decision_tree.child.length; i++) {
+                if (decision_tree.child[i].node_val == max_val) {
+                    best_move = decision_tree.child_moves[i];
+                    break;
                 }
-
-                // restore the board
-                this.board = board_copy;
             }
-
-            console.log(best_move)
+            console.log(best_move);
 
             // play the best move
             let exit_code = this.next_state(this.turn, best_move[0], best_move[1]);
@@ -342,43 +394,6 @@ class Board {
 
         // restore the input for the user
         this.disable_input = false;
-    }
-
-    construct_tree() {
-        
-    }
-
-    minimax(node, depth, alpha, beta, maximizingPlayer) {
-        if (depth === 0 || node.is_terminal()) {
-            return node.node_val;
-        }
-
-        if (maximizingPlayer) {
-            let value = -Inifinity;
-            for (let i=0; i < node.child.length; i++) {
-                let child = node.child[i];
-                value = Math.max(value, this.minimax(child, depth-1, alpha, beta, false));
-                alpha = Math.max(alpha, value);
-                if (value >= beta) {
-                    break
-                }
-            }
-            node.set_val(value);
-            return value;
-        }
-        else {
-            let value = Infinity;
-            for (let i=0; i < node.child.length; i++) {
-                let child = node.child[i];
-                value = Math.min(value, this.minimax(child, depth-1, alpha, beta, true));
-                beta = Math.min(beta, value);
-                if (value <= alpha) {
-                    break;
-                }
-            }
-            node.set_val(value);
-            return value;
-        }
     }
 
     /*
@@ -497,6 +512,19 @@ function start_2player() {
     transition();
 }
 
+function reset() {
+    // Create a new board
+    current_board = new Board();
+
+    // Edit HTML stuff
+    document.getElementById("intro").classList.remove("hide");
+    document.getElementById("board").classList.remove("board-design");
+    document.getElementById("stat").classList.remove("stat-design");
+    document.getElementById("board").classList.add("hide");
+    document.getElementById("stat").classList.add("hide");
+    document.getElementById("nav").classList.add("hide");
+}
+
 // ----------------------------- helper function ---------------------------------------
 function transition() {
     // Remove the home screen 
@@ -510,6 +538,10 @@ function transition() {
   document.getElementById("board").classList.remove("hide");
   document.getElementById("stat").classList.remove("hide");
   document.getElementById("nav").classList.remove("hide");
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 
