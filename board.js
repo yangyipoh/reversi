@@ -1,4 +1,6 @@
-COMPUTER_TURN = 2;
+let COMPUTER_TURN = 2;
+let COMPUTER_DELAY = 500;
+let tmp_var;
 
 class Board {
     constructor(current_turn=1, current_mode=1, input=false) {
@@ -204,7 +206,7 @@ class Board {
             if (player == 1 && this.valid_moves(2).length != 0) {
                 return 2;
             }
-            else if (player == 1 && thils.valid_moves(2).length == 0 && this.valid_moves(1).length != 0) {
+            else if (player == 1 && this.valid_moves(2).length == 0 && this.valid_moves(1).length != 0) {
                 return 1;
             }
             else if (player == 1 && this.valid_moves(2).length == 0 && this.valid_moves(1).length == 0) {
@@ -230,8 +232,6 @@ class Board {
     }
 
     /*
-    function cell_select(r, c)
-
     Callback function when we click to place on the board
 
     input: r --> the row that the user have clicked
@@ -251,38 +251,134 @@ class Board {
             alert("Please select a VALID square (marked red)");
         }
 
-        // // exit_code == 0 --> the game has ended 
-        // else if (exit_code == 0) {
-        //     let check = score();
-        //     current_player = 0;
-        //     print_board();
-        //     update_turn();
-        //     update_score();
+        // exit_code == 0 --> the game has ended 
+        else if (exit_code == 0) {
+            let check = this.calc_score();
+            this.score = check
+            this.turn = 0;
+            this.draw();
 
-        //     // Send victory message
-        //     if (check[0] == check[1]) {
-        //     alert("It's a draw!");
-        //     }
-        //     else if (check[0] > check[1]) {
-        //     alert("Congratulations, White!");
-        //     }
-        //     else {
-        //     alert("Congratulations, Black!");
-        //     }
-        // }
-        // // exit_code == 1 or exit_code == 2 --> Keep playing
-        // else {
-        //     current_player = exit_code;
-        //     print_board();
-        //     update_turn();
-        //     update_score();
+            // Send victory message
+            if (check[0] == check[1]) {
+                alert("It's a draw!");
+            }
+            else if (check[0] > check[1]) {
+                alert("Congratulations, White!");
+            }
+            else {
+                alert("Congratulations, Black!");
+            }
+        }
+        // exit_code == 1 or exit_code == 2 --> Keep playing
+        else {
+            this.turn = exit_code;
+            this.draw();
 
-        //     // If it's against the computer and its the computer's turn
-        //     if (current_mode == 1 && current_player == computer_play) {
-        //     disable_input = true;
-        //     t = setTimeout(computer_move, 1000);  // Put some delay for feedback
-        //     }
-        // }
+            // If it's against the computer and its the computer's turn
+            if (this.mode == 1 && this.turn == COMPUTER_TURN) {
+                this.disable_input = true;
+                this.computer_move();  // Put some delay for feedback
+            }
+        }
+    }
+
+    /*
+    Function that allows the computer to play
+    */
+    computer_move() {
+        // keep moving if it's the computer's turn
+        while (this.turn == COMPUTER_TURN) {
+            let current_best_score = 0;
+
+            // get all the valid moves for the computer for now
+            let all_moves_lst = this.valid_moves(this.turn)
+            let best_move = all_moves_lst[0];
+
+            for (let i = 0; i < all_moves_lst.length; i++) {
+                // play the move on a copied board
+                let board_copy = this.pseudocopy();
+                let temp = this.next_state(this.turn, all_moves_lst[i][0], all_moves_lst[i][1]);
+
+                // calculate the score and see if it's the best move
+                let temp_score = this.calc_score();
+                if (temp_score[1] > current_best_score) {
+                    current_best_score = temp_score[1];
+                    best_move = all_moves_lst[i];
+                }
+
+                // restore the board
+                this.board = board_copy;
+            }
+
+            console.log(best_move)
+
+            // play the best move
+            let exit_code = this.next_state(this.turn, best_move[0], best_move[1]);
+
+            // exit_code == 0 --> game has ended
+            if (exit_code == 0) {
+                let check = this.calc_score();
+                this.score = check;
+                this.draw();
+
+                this.turn = 0;
+                if (check[0] == check[1]) {
+                    alert("It's a draw!");
+                }
+                else if (check[0] > check[1]) {
+                    alert("Congratulations, White!");
+                }
+                else {
+                    alert("Congratulations, Black!");
+                }
+                break;
+            }
+            // exit_code == 1 or 2 --> keep playing
+            else {
+                this.turn = exit_code;
+                this.draw();
+            }
+        }
+
+        // restore the input for the user
+        this.disable_input = false;
+    }
+
+    construct_tree() {
+        
+    }
+
+    minimax(node, depth, alpha, beta, maximizingPlayer) {
+        if (depth === 0 || node.is_terminal()) {
+            return node.node_val;
+        }
+
+        if (maximizingPlayer) {
+            let value = -Inifinity;
+            for (let i=0; i < node.child.length; i++) {
+                let child = node.child[i];
+                value = Math.max(value, this.minimax(child, depth-1, alpha, beta, false));
+                alpha = Math.max(alpha, value);
+                if (value >= beta) {
+                    break
+                }
+            }
+            node.set_val(value);
+            return value;
+        }
+        else {
+            let value = Infinity;
+            for (let i=0; i < node.child.length; i++) {
+                let child = node.child[i];
+                value = Math.min(value, this.minimax(child, depth-1, alpha, beta, true));
+                beta = Math.min(beta, value);
+                if (value <= alpha) {
+                    break;
+                }
+            }
+            node.set_val(value);
+            return value;
+        }
     }
 
     /*
