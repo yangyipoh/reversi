@@ -1,6 +1,6 @@
 let COMPUTER_TURN = 2;
 let COMPUTER_DELAY = 500;
-let DEPTH = 6;
+let DEPTH = 7;
 let tmp_var;
 
 class Board {
@@ -274,7 +274,6 @@ class Board {
         else {
             this.turn = exit_code;
             this.draw();
-            sleep(500);
 
             // If it's against the computer and its the computer's turn
             if (this.mode == 1 && this.turn == COMPUTER_TURN) {
@@ -283,68 +282,6 @@ class Board {
             }
         }
     }
-
-    // /*
-    // Function that allows the computer to play (depricated)
-    // */
-    // computer_move() {
-    //     // keep moving if it's the computer's turn
-    //     while (this.turn == COMPUTER_TURN) {
-    //         let current_best_score = 0;
-
-    //         // get all the valid moves for the computer for now
-    //         let all_moves_lst = this.valid_moves(this.turn)
-    //         let best_move = all_moves_lst[0];
-
-    //         for (let i = 0; i < all_moves_lst.length; i++) {
-    //             // play the move on a copied board
-    //             let board_copy = this.pseudocopy();
-    //             let temp = this.next_state(this.turn, all_moves_lst[i][0], all_moves_lst[i][1]);
-
-    //             // calculate the score and see if it's the best move
-    //             let temp_score = this.calc_score();
-    //             if (temp_score[1] > current_best_score) {
-    //                 current_best_score = temp_score[1];
-    //                 best_move = all_moves_lst[i];
-    //             }
-
-    //             // restore the board
-    //             this.board = board_copy;
-    //         }
-
-    //         console.log(best_move)
-
-    //         // play the best move
-    //         let exit_code = this.next_state(this.turn, best_move[0], best_move[1]);
-
-    //         // exit_code == 0 --> game has ended
-    //         if (exit_code == 0) {
-    //             let check = this.calc_score();
-    //             this.score = check;
-    //             this.draw();
-
-    //             this.turn = 0;
-    //             if (check[0] == check[1]) {
-    //                 alert("It's a draw!");
-    //             }
-    //             else if (check[0] > check[1]) {
-    //                 alert("Congratulations, White!");
-    //             }
-    //             else {
-    //                 alert("Congratulations, Black!");
-    //             }
-    //             break;
-    //         }
-    //         // exit_code == 1 or 2 --> keep playing
-    //         else {
-    //             this.turn = exit_code;
-    //             this.draw();
-    //         }
-    //     }
-
-    //     // restore the input for the user
-    //     this.disable_input = false;
-    // }
 
     /*
     Function that allows the computer to play using minimax + alpha beta pruning
@@ -539,11 +476,6 @@ function transition() {
   document.getElementById("stat").classList.remove("hide");
   document.getElementById("nav").classList.remove("hide");
 }
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 
 console.log('Hello from board.js')
 let current_board = new Board()
