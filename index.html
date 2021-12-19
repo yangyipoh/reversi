@@ -41,8 +41,8 @@
           <section id="intro">
             <h1>Welcome</h1>
             <p>This is the game of Reversi/Othello. In the singleplayer game, you'll be playing white which means you'll be starting first.</p>
-            <p>The single player AI just looks for the move that get's the most score so it's pretty easy to beat it. There will be plans to implement a version of the game that uses the minimax function to actually look ahead. There's also a possibility that I'll try and implement a version using Q-learning (but I'm not very good at Reinforced Learning)</p>
-            <p>Also note that the game is not optimised for mobile devices (Let me know if anyone wants a mobile version)</p>
+            <p>The single player AI looks ahead on the board plays the move that maximises the difference between the black and white pieces. It will also immediately play a corner move if it's available for the AI.</p>
+            <p>Note that I ran into memory issue when I set the search depth to be greater than 5 (it probably wasn't a good idea to make this game in a web browser but oh well).  I do not recommend running it higher than 5. Also note that the game is not optimised for mobile devices (Let me know if anyone wants a mobile version)</p>
             <p>Please select the game mode</p>
 
             <!-- Naviation buttons -->
@@ -52,6 +52,12 @@
             <a href="http://www.flyordie.com/games/help/reversi/en/contents.html" target="_blank">
               <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">How to play</button>
             </a>
+
+            <!-- Search Depth -->
+            <div id='display-depth'><h3>Search Depth: 1</h3></div>
+            <p style="width:300px">
+              <input class="mdl-slider mdl-js-slider" type="range" id="s1" min="1" max="5" value="1" step="1" onchange='set_depth(this.value)' oninput='set_depth(this.value)'>
+            </p>
           </section>
 
           <!-- Actual Game -->

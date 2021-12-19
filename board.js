@@ -1,6 +1,6 @@
 let COMPUTER_TURN = 2;
 let COMPUTER_DELAY = 500;
-let DEPTH = 5;
+let DEPTH = 1;
 let tmp_var;
 
 class Board {
@@ -494,6 +494,15 @@ function reset() {
     document.getElementById("board").classList.add("hide");
     document.getElementById("stat").classList.add("hide");
     document.getElementById("nav").classList.add("hide");
+}
+
+function set_depth(val) {
+    DEPTH = parseInt(val);
+    
+    // HTML change
+    let out_str = ''
+    out_str += '<h3>Search Depth: ' + val + '</h3>'
+    document.getElementById('display-depth').innerHTML = out_str;
 }
 
 // ----------------------------- helper function ---------------------------------------
