@@ -17,7 +17,7 @@ class Node {
 
 function create_tree(depth, board) {
     // base case
-    if (depth == 0 || board.turn == 0) {
+    if (depth == 0) {
         let new_node = create_node(board);
         return new_node;
     }
@@ -76,9 +76,12 @@ function minimax(node, depth, alpha, beta) {
         // objective = maximise black pieces
         let board = node.board;
         let score = board.calc_score();
-        return score[1];
+        let value = score[1] - score[0];
+        node.set_val(value);
+        return value;
     }
     let board = node.board;
+
     let maximizing_black = (board.turn == 2);
     if (maximizing_black) {
         let value = -Infinity;
@@ -108,4 +111,4 @@ function minimax(node, depth, alpha, beta) {
     }
 }
 
-console.log('Testing world')
+console.log('Hello from minimax.js');

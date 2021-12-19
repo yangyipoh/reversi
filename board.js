@@ -1,6 +1,6 @@
 let COMPUTER_TURN = 2;
 let COMPUTER_DELAY = 500;
-let DEPTH = 7;
+let DEPTH = 5;
 let tmp_var;
 
 class Board {
@@ -289,17 +289,43 @@ class Board {
     computer_move() {
         // keep moving if it's the computer's turn
         while (this.turn == COMPUTER_TURN) {
+            console.log('\n Thinking .....')
+
             let best_move;
-            let decision_tree = create_tree(DEPTH, this);
-            let max_val = minimax(decision_tree, DEPTH, -Infinity, Infinity);
-            
-            for (let i=0; i<decision_tree.child.length; i++) {
-                if (decision_tree.child[i].node_val == max_val) {
-                    best_move = decision_tree.child_moves[i];
-                    break;
-                }
+            let killer_move = false;
+
+            let all_moves_lst = this.valid_moves(this.turn);
+            for (let i=0; i<all_moves_lst.length; i++) {
+                if (all_moves_lst[i].toString() == [0, 0].toString() || 
+                    all_moves_lst[i].toString() == [0, 7].toString() ||
+                    all_moves_lst[i].toString() == [7, 0].toString() ||
+                    all_moves_lst[i].toString() == [7, 7].toString()) {
+                        best_move = all_moves_lst[i];
+                        killer_move = true;
+                        break;
+                    }
             }
-            console.log(best_move);
+
+            if (!killer_move) {
+                let decision_tree = create_tree(DEPTH, this);
+                // console.log(decision_tree);
+                let max_val = minimax(decision_tree, DEPTH, -Infinity, Infinity);
+                
+                for (let i=0; i<decision_tree.child.length; i++) {
+                    if (decision_tree.child[i].node_val == max_val) {
+                        best_move = decision_tree.child_moves[i];
+                        break;
+                    }
+                }
+                let out_str = '';
+                out_str += 'Best value: ' + max_val;
+                out_str += ' | Move: row ' + best_move[0] + ' col ' + best_move[1];
+                console.log(out_str);
+            }
+            else {
+                console.log('Killer Move found');
+            }
+            
 
             // play the best move
             let exit_code = this.next_state(this.turn, best_move[0], best_move[1]);
@@ -429,6 +455,14 @@ class Board {
             output_str = "<div class=\"token black\"></div>";
         }
         document.getElementById(id_selector).innerHTML = output_str;
+    }
+
+    generate_token() {
+        let out_str = '';
+        for (let i=0; i<this.board.length; i++) {
+            out_str += this.board[i].toString() + ',';
+        }
+        return out_str;
     }
 }
 
